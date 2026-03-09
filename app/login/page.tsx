@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/app/auth-context';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Database } from '@/lib/db';
+import { Database, User } from '@/lib/db';
 import { Heart, Coins, Crown, Shield, Eye, EyeOff } from 'lucide-react';
 
 export default function AuthPage() {
@@ -38,9 +38,21 @@ export default function AuthPage() {
   const [isLoading, setIsLoading] = useState(false);
 
   // Redirect if already logged in
+  useEffect(() => {
+    if (currentUser && !isLoading) {
+      router.push('/app');
+    }
+  }, [currentUser, isLoading, router]);
+
   if (currentUser) {
-    router.push('/app');
-    return null;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 via-rose-50 to-pink-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Redirecting...</p>
+        </div>
+      </div>
+    );
   }
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -97,6 +109,7 @@ export default function AuthPage() {
 
       // Check if email exists
       const existingUser = Database.findUserByEmail(regEmail);
+      console.log('[v0] Checking existing user:', existingUser);
       if (existingUser) {
         setRegError('Email already registered');
         setIsLoading(false);
@@ -104,7 +117,7 @@ export default function AuthPage() {
       }
 
       // Create new user with 10 free tokens
-      const newUser = {
+      const newUser: User = {
         id: `user-${Date.now()}`,
         email: regEmail,
         password: regPassword,
@@ -122,7 +135,9 @@ export default function AuthPage() {
         createdAt: Date.now(),
       };
 
+      console.log('[v0] Creating new user:', newUser);
       createUser(newUser);
+      console.log('[v0] User created, redirecting to /app');
       router.push('/app');
     } catch {
       setRegError('An error occurred. Please try again.');
