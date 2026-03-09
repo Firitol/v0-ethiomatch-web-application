@@ -7,7 +7,7 @@ import { Database, User, Message, Conversation } from '@/lib/db';
 import { ChatInterface } from '@/components/chat-interface';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Heart, ArrowLeft, MessageCircle } from 'lucide-react';
+import { Heart, ArrowLeft, MessageCircle, Coins, Crown } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 export default function MessagesPage() {
@@ -105,15 +105,27 @@ export default function MessagesPage() {
             <h1 className="text-2xl font-bold text-gray-900">Ethiomatch</h1>
           </div>
 
-          <nav className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
+            {/* Token/Premium Display */}
+            {currentUser.isPremium ? (
+              <div className="flex items-center gap-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-3 py-1.5 rounded-full text-sm font-medium">
+                <Crown className="w-4 h-4" />
+                <span>Premium</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1 bg-amber-100 text-amber-800 px-3 py-1.5 rounded-full text-sm font-medium">
+                <Coins className="w-4 h-4" />
+                <span>{currentUser.tokens} tokens</span>
+              </div>
+            )}
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => router.push('/app/discover')}
+              onClick={() => router.push('/app')}
             >
-              Back to Discover
+              Back to Home
             </Button>
-          </nav>
+          </div>
         </div>
       </header>
 
