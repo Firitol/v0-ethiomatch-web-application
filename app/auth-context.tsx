@@ -68,3 +68,8 @@ export function useAuth() {
   }
   return context;
 }
+
+// Initialize demo data on app start
+if (typeof window !== 'undefined') {
+  Database.initializeDemoData?.();
+}

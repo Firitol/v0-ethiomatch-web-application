@@ -1,31 +1,37 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { Heart, MessageCircle, User } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { Heart, MessageCircle, User, LogOut } from 'lucide-react';
 import { useAuth } from '@/app/auth-context';
 import { Button } from '@/components/ui/button';
 
 export function Navigation() {
   const pathname = usePathname();
+  const router = useRouter();
   const { logout } = useAuth();
 
   const isActive = (path: string) => pathname === path;
 
+  const handleLogout = () => {
+    logout();
+    router.push('/login');
+  };
+
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <nav className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
       <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2">
-          <Heart className="w-8 h-8 text-primary fill-primary" />
-          <span className="text-xl font-bold text-foreground hidden sm:inline">
+        <Link href="/app" className="flex items-center gap-2">
+          <Heart className="w-8 h-8 text-red-500 fill-red-500" />
+          <span className="text-xl font-bold text-gray-900 hidden sm:inline">
             Ethiomatch
           </span>
         </Link>
 
         <div className="flex items-center gap-2 sm:gap-4">
-          <Link href="/">
+          <Link href="/app/discover">
             <Button
-              variant={isActive('/') ? 'default' : 'ghost'}
+              variant={isActive('/app/discover') ? 'default' : 'ghost'}
               size="sm"
               className="gap-2"
             >
@@ -34,20 +40,20 @@ export function Navigation() {
             </Button>
           </Link>
 
-          <Link href="/matches">
+          <Link href="/app/messages">
             <Button
-              variant={isActive('/matches') ? 'default' : 'ghost'}
+              variant={isActive('/app/messages') ? 'default' : 'ghost'}
               size="sm"
               className="gap-2"
             >
               <MessageCircle size={18} />
-              <span className="hidden sm:inline">Matches</span>
+              <span className="hidden sm:inline">Messages</span>
             </Button>
           </Link>
 
-          <Link href="/profile">
+          <Link href="/app/profile">
             <Button
-              variant={isActive('/profile') ? 'default' : 'ghost'}
+              variant={isActive('/app/profile') ? 'default' : 'ghost'}
               size="sm"
               className="gap-2"
             >
@@ -57,11 +63,13 @@ export function Navigation() {
           </Link>
 
           <Button
-            variant="outline"
+            variant="ghost"
             size="sm"
-            onClick={logout}
+            onClick={handleLogout}
+            className="text-red-600 hover:text-red-700 gap-2"
           >
-            Logout
+            <LogOut size={18} />
+            <span className="hidden sm:inline">Logout</span>
           </Button>
         </div>
       </div>

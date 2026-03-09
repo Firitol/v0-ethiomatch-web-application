@@ -95,6 +95,71 @@ const DEFAULT_USERS: User[] = [
     location: 'Hawassa',
     createdAt: Date.now() - 86400000 * 2,
   },
+  {
+    id: '5',
+    name: 'Yodit',
+    age: 27,
+    gender: 'female',
+    relationshipGoal: 'serious',
+    bio: 'Business analyst who loves entrepreneurship and personal growth. Coffee enthusiast and weekend traveler.',
+    photos: ['https://images.unsplash.com/photo-1517841905240-1455efb3ffb5?w=400'],
+    videos: [],
+    interests: ['Business', 'Travel', 'Fitness', 'Cooking'],
+    location: 'Addis Ababa',
+    createdAt: Date.now() - 86400000 * 1,
+  },
+  {
+    id: '6',
+    name: 'Almaz',
+    age: 24,
+    gender: 'female',
+    relationshipGoal: 'dating',
+    bio: 'Graphic designer passionate about creativity and design. Love exploring new restaurants and museums.',
+    photos: ['https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400'],
+    videos: [],
+    interests: ['Design', 'Art', 'Food', 'Culture'],
+    location: 'Addis Ababa',
+    createdAt: Date.now() - 86400000 * 4,
+  },
+  {
+    id: '7',
+    name: 'Getnet',
+    age: 31,
+    gender: 'male',
+    relationshipGoal: 'marriage',
+    bio: 'Engineer working in renewable energy. Passionate about sustainability and outdoor sports.',
+    photos: ['https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400'],
+    videos: [],
+    interests: ['Technology', 'Sustainability', 'Sports', 'Travel'],
+    location: 'Addis Ababa',
+    createdAt: Date.now() - 86400000 * 6,
+  },
+  {
+    id: '8',
+    name: 'Dawit',
+    age: 29,
+    gender: 'male',
+    relationshipGoal: 'serious',
+    bio: 'Accountant with a love for numbers and travel. Enjoy hiking, reading, and good conversations.',
+    photos: ['https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400'],
+    videos: [],
+    interests: ['Travel', 'Reading', 'Finance', 'Hiking'],
+    location: 'Addis Ababa',
+    createdAt: Date.now() - 86400000 * 3,
+  },
+  {
+    id: '9',
+    name: 'Tadesse',
+    age: 26,
+    gender: 'male',
+    relationshipGoal: 'dating',
+    bio: 'Marketing professional who loves creative campaigns and trying new cuisines. Always up for an adventure.',
+    photos: ['https://images.unsplash.com/photo-1517841905240-1455efb3ffb5?w=400'],
+    videos: [],
+    interests: ['Marketing', 'Food', 'Music', 'Travel'],
+    location: 'Dire Dawa',
+    createdAt: Date.now() - 86400000 * 2,
+  },
 ];
 
 export class Database {
@@ -144,6 +209,14 @@ export class Database {
       localStorage.setItem('ethiomatch_current_user', JSON.stringify(user));
     } else {
       localStorage.removeItem('ethiomatch_current_user');
+    }
+  }
+
+  static initializeDemoData(): void {
+    // Initialize users if not present
+    const users = localStorage.getItem('ethiomatch_users');
+    if (!users) {
+      localStorage.setItem('ethiomatch_users', JSON.stringify(DEFAULT_USERS));
     }
   }
 }

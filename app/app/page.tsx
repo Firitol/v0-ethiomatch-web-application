@@ -5,11 +5,11 @@ import { useAuth } from '@/app/auth-context';
 import { useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Heart, MessageCircle, User } from 'lucide-react';
+import { Heart, MessageCircle, User, LogOut } from 'lucide-react';
 
 export default function AppHome() {
   const router = useRouter();
-  const { currentUser, isLoading } = useAuth();
+  const { currentUser, isLoading, logout } = useAuth();
 
   useEffect(() => {
     if (!isLoading && !currentUser) {
@@ -21,7 +21,7 @@ export default function AppHome() {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto mb-4"></div>
           <p className="text-muted-foreground">Loading...</p>
         </div>
       </div>
@@ -32,10 +32,15 @@ export default function AppHome() {
     return null;
   }
 
+  const handleLogout = () => {
+    logout();
+    router.push('/login');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 to-rose-50">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Heart className="w-8 h-8 text-red-500 fill-red-500" />
@@ -48,7 +53,7 @@ export default function AppHome() {
               className="flex items-center gap-2"
             >
               <Heart className="w-5 h-5" />
-              Discover
+              <span className="hidden sm:inline">Discover</span>
             </Button>
             <Button
               variant="ghost"
@@ -56,7 +61,7 @@ export default function AppHome() {
               className="flex items-center gap-2"
             >
               <MessageCircle className="w-5 h-5" />
-              Messages
+              <span className="hidden sm:inline">Messages</span>
             </Button>
             <Button
               variant="ghost"
@@ -64,14 +69,22 @@ export default function AppHome() {
               className="flex items-center gap-2"
             >
               <User className="w-5 h-5" />
-              Profile
+              <span className="hidden sm:inline">Profile</span>
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={handleLogout}
+              className="flex items-center gap-2 text-red-600 hover:text-red-700"
+            >
+              <LogOut className="w-5 h-5" />
+              <span className="hidden sm:inline">Logout</span>
             </Button>
           </nav>
         </div>
-      </div>
+      </header>
 
       {/* Main Content */}
-      <div className="max-w-6xl mx-auto px-4 py-12">
+      <main className="max-w-6xl mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Welcome Card */}
           <Card className="md:col-span-2 bg-white border-0 shadow-lg">
@@ -122,9 +135,9 @@ export default function AppHome() {
                 <div>
                   <p className="text-gray-600 text-sm">Looking for</p>
                   <p className="text-lg font-semibold text-red-600 capitalize">
-                    {currentUser.relationshipGoal === 'marriage' && '💍 Marriage'}
-                    {currentUser.relationshipGoal === 'serious' && '❤️ Serious Relationship'}
-                    {currentUser.relationshipGoal === 'dating' && '💕 Dating'}
+                    {currentUser.relationshipGoal === 'marriage' && 'Marriage'}
+                    {currentUser.relationshipGoal === 'serious' && 'Serious Relationship'}
+                    {currentUser.relationshipGoal === 'dating' && 'Dating'}
                   </p>
                 </div>
                 <div>
@@ -134,6 +147,10 @@ export default function AppHome() {
                 <div>
                   <p className="text-gray-600 text-sm">Photos</p>
                   <p className="text-lg font-semibold">{currentUser.photos.length}</p>
+                </div>
+                <div>
+                  <p className="text-gray-600 text-sm">Videos</p>
+                  <p className="text-lg font-semibold">{currentUser.videos.length}</p>
                 </div>
                 <Button
                   onClick={() => router.push('/app/profile')}
@@ -146,7 +163,7 @@ export default function AppHome() {
             </Card>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
