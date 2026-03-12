@@ -5,18 +5,29 @@ import { usePathname, useRouter } from 'next/navigation';
 import { Heart, MessageCircle, User, LogOut } from 'lucide-react';
 import { useAuth } from '@/app/auth-context';
 import { Button } from '@/components/ui/button';
+import { useCallback, useEffect } from 'react';
 
 export function Navigation() {
   const pathname = usePathname();
   const router = useRouter();
-  const { logout } = useAuth();
+  const { logout, currentUser } = useAuth();
 
   const isActive = (path: string) => pathname === path;
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     logout();
-    router.push('/login');
-  };
+    // Use setTimeout to ensure state updates complete before navigation
+    setTimeout(() => {
+      router.push('/login');
+    }, 100);
+  }, [logout, router]);
+
+  // Redirect to login if user logs out while on protected route
+  useEffect(() => {
+    if (!currentUser && pathname.startsWith('/app')) {
+      router.push('/login');
+    }
+  }, [currentUser, pathname, router]);
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
