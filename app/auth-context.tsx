@@ -38,8 +38,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const logout = useCallback(() => {
-    Database.setCurrentUser(null);
     setCurrentUser(null);
+    Database.setCurrentUser(null);
   }, []);
 
   const updateProfile = useCallback((user: User) => {
