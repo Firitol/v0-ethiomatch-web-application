@@ -15,11 +15,12 @@ interface ChatInterfaceProps {
 }
 
 export function ChatInterface({ currentUser, otherUser, conversationId }: ChatInterfaceProps) {
-  const { useToken, canSendMessage, refreshUser } = useAuth();
+  const { refreshUser } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [mediaPreview, setMediaPreview] = useState<{ url: string; type: 'image' | 'video' } | null>(null);
   const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
+  const [localCurrentUser, setLocalCurrentUser] = useState<User>(currentUser);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -44,16 +45,22 @@ export function ChatInterface({ currentUser, otherUser, conversationId }: ChatIn
     if (!newMessage.trim() && !mediaPreview) return;
 
     // Check if user can send message (has tokens or is premium)
-    if (!canSendMessage()) {
+    if (!Database.canSendMessage(currentUser.id)) {
       setShowUpgradePrompt(true);
       return;
     }
 
     // Use a token (premium users don't consume tokens)
-    const tokenUsed = useToken();
+    const tokenUsed = Database.useToken(currentUser.id);
     if (!tokenUsed && !currentUser.isPremium) {
       setShowUpgradePrompt(true);
       return;
+    }
+
+    // Update local user state
+    const updatedUser = Database.getCurrentUser();
+    if (updatedUser) {
+      setLocalCurrentUser(updatedUser);
     }
 
     const message: Message = {
@@ -89,12 +96,20 @@ export function ChatInterface({ currentUser, otherUser, conversationId }: ChatIn
 
   const handleUpgradePremium = () => {
     Database.upgradeToPremium(currentUser.id);
+    const updatedUser = Database.getCurrentUser();
+    if (updatedUser) {
+      setLocalCurrentUser(updatedUser);
+    }
     refreshUser();
     setShowUpgradePrompt(false);
   };
 
   const handleBuyTokens = (amount: number) => {
     Database.addTokens(currentUser.id, amount);
+    const updatedUser = Database.getCurrentUser();
+    if (updatedUser) {
+      setLocalCurrentUser(updatedUser);
+    }
     refreshUser();
     setShowUpgradePrompt(false);
   };
@@ -109,7 +124,7 @@ export function ChatInterface({ currentUser, otherUser, conversationId }: ChatIn
         </div>
         {/* Token/Premium indicator */}
         <div className="flex items-center gap-2">
-          {currentUser.isPremium ? (
+          {localCurrentUser.isPremium ? (
             <span className="flex items-center gap-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-2 py-1 rounded-full text-xs font-medium">
               <Crown className="w-3 h-3" />
               Premium
@@ -117,7 +132,7 @@ export function ChatInterface({ currentUser, otherUser, conversationId }: ChatIn
           ) : (
             <span className="flex items-center gap-1 bg-amber-100 text-amber-800 px-2 py-1 rounded-full text-xs font-medium">
               <Coins className="w-3 h-3" />
-              {currentUser.tokens} left
+              {localCurrentUser.tokens} left
             </span>
           )}
         </div>
@@ -174,8 +189,8 @@ export function ChatInterface({ currentUser, otherUser, conversationId }: ChatIn
         <div ref={messagesEndRef} />
       </div>
 
-      {/* No tokens warning */}
-      {!currentUser.isPremium && currentUser.tokens === 0 && (
+        {/* No tokens warning */}
+      {!localCurrentUser.isPremium && localCurrentUser.tokens === 0 && (
         <div className="px-4 py-2 bg-amber-50 border-t border-amber-200 flex items-center gap-2">
           <AlertCircle className="w-4 h-4 text-amber-600" />
           <p className="text-sm text-amber-800">You have no tokens left. Buy more to continue messaging.</p>
@@ -226,9 +241,9 @@ export function ChatInterface({ currentUser, otherUser, conversationId }: ChatIn
                 handleSendMessage();
               }
             }}
-            placeholder={currentUser.isPremium ? "Type a message..." : `Type a message... (${currentUser.tokens} tokens left)`}
+            placeholder={localCurrentUser.isPremium ? "Type a message..." : `Type a message... (${localCurrentUser.tokens} tokens left)`}
             className="flex-1"
-            disabled={!currentUser.isPremium && currentUser.tokens === 0}
+            disabled={!localCurrentUser.isPremium && localCurrentUser.tokens === 0}
           />
           <label className="p-2 cursor-pointer hover:bg-gray-100 rounded-lg transition">
             <ImageIcon className="w-5 h-5 text-gray-600" />
@@ -259,7 +274,7 @@ export function ChatInterface({ currentUser, otherUser, conversationId }: ChatIn
           <Button
             onClick={handleSendMessage}
             className="bg-red-500 hover:bg-red-600 text-white px-4"
-            disabled={!currentUser.isPremium && currentUser.tokens === 0}
+            disabled={!localCurrentUser.isPremium && localCurrentUser.tokens === 0}
           >
             <Send className="w-4 h-4" />
           </Button>
