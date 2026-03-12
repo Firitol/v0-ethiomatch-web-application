@@ -51,16 +51,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const createUser = useCallback((user: User) => {
-    console.log('[v0] AuthContext createUser called with:', user);
     const users = Database.getUsers();
-    console.log('[v0] Current users count:', users.length);
     users.push(user);
     Database.saveUsers(users);
-    console.log('[v0] Users saved, new count:', users.length);
     Database.setCurrentUser(user);
-    console.log('[v0] Current user set');
     setCurrentUser(user);
-    console.log('[v0] State updated with new user');
   }, []);
 
   const refreshUser = useCallback(() => {

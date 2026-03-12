@@ -6,11 +6,11 @@ import { useRouter } from 'next/navigation';
 import { Database, User, Match } from '@/lib/db';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Heart, MessageCircle, User as UserIcon, LogOut, X } from 'lucide-react';
+import { Heart, X } from 'lucide-react';
 
 export default function DiscoverPage() {
   const router = useRouter();
-  const { currentUser, logout } = useAuth();
+  const { currentUser } = useAuth();
   const [candidates, setCandidates] = useState<User[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [matches, setMatches] = useState<Match[]>([]);
@@ -101,11 +101,6 @@ export default function DiscoverPage() {
     }
   };
 
-  const handleLogout = () => {
-    logout();
-    router.push('/login');
-  };
-
   if (!currentUser) {
     return null;
   }
@@ -114,48 +109,8 @@ export default function DiscoverPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 to-rose-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Heart className="w-6 h-6 text-red-500 fill-red-500" />
-            <h1 className="text-2xl font-bold text-gray-900">Ethiomatch</h1>
-          </div>
-
-          <nav className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => router.push('/app/profile')}
-              className="flex items-center gap-2"
-            >
-              <UserIcon className="w-4 h-4" />
-              <span className="hidden sm:inline">Profile</span>
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => router.push('/app/messages')}
-              className="flex items-center gap-2"
-            >
-              <MessageCircle className="w-4 h-4" />
-              <span className="hidden sm:inline">Messages</span>
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleLogout}
-              className="flex items-center gap-2 text-red-600 hover:text-red-700"
-            >
-              <LogOut className="w-4 h-4" />
-              <span className="hidden sm:inline">Logout</span>
-            </Button>
-          </nav>
-        </div>
-      </header>
-
       {/* Main Content */}
-      <main className="max-w-6xl mx-auto px-4 py-8">
+      <div className="max-w-6xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Swipe Area */}
           <div className="lg:col-span-2 flex flex-col items-center justify-center">
@@ -195,13 +150,13 @@ export default function DiscoverPage() {
                   </div>
 
                   {/* Profile Info */}
-                  <CardContent className="p-6 space-y-4">
-                    <div>
-                      <h2 className="text-2xl font-bold text-gray-900">{currentProfile.name}</h2>
-                      <p className="text-gray-600">{currentProfile.location}</p>
+                  <CardContent className="p-6 space-y-4 max-h-96 overflow-y-auto">
+                    <div className="break-words">
+                      <h2 className="text-2xl font-bold text-gray-900 break-words">{currentProfile.name}</h2>
+                      <p className="text-gray-600 break-words">{currentProfile.location}</p>
                     </div>
 
-                    <p className="text-gray-700 text-sm leading-relaxed">{currentProfile.bio}</p>
+                    <p className="text-gray-700 text-sm leading-relaxed break-words">{currentProfile.bio}</p>
 
                     {/* Interests */}
                     <div>
@@ -337,7 +292,7 @@ export default function DiscoverPage() {
             </Card>
           </aside>
         </div>
-      </main>
+      </div>
     </div>
   );
 }
