@@ -8,12 +8,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Heart, Upload, Trash2, Play, LogOut } from 'lucide-react';
+import { Heart, Upload, Trash2, Play } from 'lucide-react';
 import { ProfileView } from '@/components/profile-view';
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { currentUser, updateProfile, logout } = useAuth();
+  const { currentUser, updateProfile } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<User | null>(null);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
@@ -93,48 +93,14 @@ export default function ProfilePage() {
     setIsEditing(false);
   };
 
-  const handleLogout = () => {
-    logout();
-    router.push('/login');
-  };
-
   if (!currentUser || !formData) {
     return null;
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 to-rose-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Heart className="w-6 h-6 text-red-500 fill-red-500" />
-            <h1 className="text-2xl font-bold text-gray-900">Ethiomatch</h1>
-          </div>
-
-          <nav className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => router.push('/app/discover')}
-            >
-              Back to Discover
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleLogout}
-              className="flex items-center gap-2 text-red-600 hover:text-red-700"
-            >
-              <LogOut className="w-4 h-4" />
-              <span className="hidden sm:inline">Logout</span>
-            </Button>
-          </nav>
-        </div>
-      </header>
-
       {/* Main Content */}
-      <main className="max-w-6xl mx-auto px-4 py-8">
+      <div className="max-w-6xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Profile Preview */}
           <div className="lg:col-span-2">
@@ -356,7 +322,7 @@ export default function ProfilePage() {
             </Card>
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 }

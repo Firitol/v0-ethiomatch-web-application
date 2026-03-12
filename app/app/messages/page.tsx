@@ -7,7 +7,7 @@ import { Database, User, Message, Conversation } from '@/lib/db';
 import { ChatInterface } from '@/components/chat-interface';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Heart, ArrowLeft, MessageCircle, Coins, Crown } from 'lucide-react';
+import { Heart, ArrowLeft } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 export default function MessagesPage() {
@@ -130,40 +130,8 @@ export default function MessagesPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 to-rose-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Heart className="w-6 h-6 text-red-500 fill-red-500" />
-            <h1 className="text-2xl font-bold text-gray-900">Ethiomatch</h1>
-          </div>
-
-          <div className="flex items-center gap-3">
-            {/* Token/Premium Display */}
-            {currentUser.isPremium ? (
-              <div className="flex items-center gap-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-3 py-1.5 rounded-full text-sm font-medium">
-                <Crown className="w-4 h-4" />
-                <span>Premium</span>
-              </div>
-            ) : (
-              <div className="flex items-center gap-1 bg-amber-100 text-amber-800 px-3 py-1.5 rounded-full text-sm font-medium">
-                <Coins className="w-4 h-4" />
-                <span>{currentUser.tokens} tokens</span>
-              </div>
-            )}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => router.push('/app')}
-            >
-              Back to Home
-            </Button>
-          </div>
-        </div>
-      </header>
-
       {/* Main Content */}
-      <main className="max-w-6xl mx-auto px-4 py-8">
+      <div className="max-w-6xl mx-auto px-4 py-8">
         {selectedConversation && getOtherUser(selectedConversation) ? (
           // Chat View
           <div className="space-y-4">
@@ -326,7 +294,7 @@ export default function MessagesPage() {
             </div>
           </div>
         )}
-      </main>
+      </div>
     </div>
   );
 }

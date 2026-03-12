@@ -14,17 +14,15 @@ export function Navigation() {
 
   const isActive = (path: string) => pathname === path;
 
-  const handleLogout = useCallback(() => {
+  const handleLogout = useCallback(async () => {
     logout();
-    // Use setTimeout to ensure state updates complete before navigation
-    setTimeout(() => {
-      router.push('/login');
-    }, 100);
+    // Push to login after state updates
+    await router.push('/login');
   }, [logout, router]);
 
   // Redirect to login if user logs out while on protected route
   useEffect(() => {
-    if (!currentUser && pathname.startsWith('/app')) {
+    if (!currentUser && pathname && pathname.startsWith('/app')) {
       router.push('/login');
     }
   }, [currentUser, pathname, router]);
