@@ -39,18 +39,34 @@ export default function DiscoverPage() {
   const handleLike = () => {
     if (!candidates[currentIndex]) return;
 
+    const targetUserId = candidates[currentIndex].id;
+
     const newMatch: Match = {
-      id: `match-${Date.now()}`,
+      id: `match-${currentUser!.id}-${targetUserId}-${Date.now()}`,
       userId: currentUser!.id,
-      matchedUserId: candidates[currentIndex].id,
+      matchedUserId: targetUserId,
       status: 'liked',
       createdAt: Date.now(),
     };
 
     const allMatches = Database.getMatches();
     allMatches.push(newMatch);
-    Database.saveMatches(allMatches);
 
+    // Check for mutual match (if target user already liked current user)
+    const reverseMatch = allMatches.find(
+      (m) => m.userId === targetUserId && m.matchedUserId === currentUser!.id && m.status === 'liked'
+    );
+
+    if (reverseMatch) {
+      // Create conversation for mutual match
+      const conversation = Database.findOrCreateConversation(currentUser!.id, targetUserId);
+
+      // Update match status to matched
+      newMatch.status = 'matched';
+      allMatches[allMatches.length - 1] = newMatch;
+    }
+
+    Database.saveMatches(allMatches);
     setMatches(allMatches);
     setLikeCount(likeCount + 1);
     nextCard();
@@ -59,10 +75,12 @@ export default function DiscoverPage() {
   const handleDislike = () => {
     if (!candidates[currentIndex]) return;
 
+    const targetUserId = candidates[currentIndex].id;
+
     const newMatch: Match = {
-      id: `match-${Date.now()}`,
+      id: `match-${currentUser!.id}-${targetUserId}-${Date.now()}`,
       userId: currentUser!.id,
-      matchedUserId: candidates[currentIndex].id,
+      matchedUserId: targetUserId,
       status: 'disliked',
       createdAt: Date.now(),
     };
