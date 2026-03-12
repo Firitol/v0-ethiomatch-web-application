@@ -14,6 +14,7 @@ export default function MessagesPage() {
   const router = useRouter();
   const { currentUser } = useAuth();
   const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [matchedUsers, setMatchedUsers] = useState<User[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [otherUsers, setOtherUsers] = useState<Map<string, User>>(new Map());
   const [unreadCounts, setUnreadCounts] = useState<Map<string, number>>(new Map());
@@ -26,9 +27,11 @@ export default function MessagesPage() {
 
     // Load conversations
     const allConversations = Database.getConversations();
+
     const userConversations = allConversations.filter(
       (c) => c.participants[0] === currentUser.id || c.participants[1] === currentUser.id
     );
+
     setConversations(userConversations);
 
     // Load other users and unread counts
@@ -55,6 +58,36 @@ export default function MessagesPage() {
 
     setOtherUsers(userMap);
     setUnreadCounts(counts);
+
+    // Load matched users (mutual likes) that don't have conversations yet
+    const allMatches = Database.getMatches();
+    const allUsers = Database.getUsers();
+
+    // Find mutual matches
+    const mutualMatches = new Set<string>();
+    allMatches.forEach((match) => {
+      if (match.userId === currentUser.id && match.status === 'matched') {
+        mutualMatches.add(match.matchedUserId);
+      }
+      if (match.matchedUserId === currentUser.id && match.status === 'matched') {
+        mutualMatches.add(match.userId);
+      }
+    });
+
+    // Get matched users that aren't already in conversations
+    const matchedUsersList = Array.from(mutualMatches)
+      .map((userId) => allUsers.find((u) => u.id === userId))
+      .filter((user) => {
+        if (!user) return false;
+        const hasConversation = userConversations.some(
+          (c) =>
+            (c.participants[0] === user.id && c.participants[1] === currentUser.id) ||
+            (c.participants[0] === currentUser.id && c.participants[1] === user.id)
+        );
+        return !hasConversation;
+      }) as User[];
+
+    setMatchedUsers(matchedUsersList);
   }, [currentUser, router]);
 
   const handleStartConversation = (userId: string) => {
@@ -152,12 +185,44 @@ export default function MessagesPage() {
           // Conversations List
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Matched Users - Quick Start */}
-            <div className="lg:col-span-1">
+            <div className="lg:col-span-1 space-y-4">
+              {/* New Matches */}
+              {matchedUsers.length > 0 && (
+                <Card className="border-green-200 bg-green-50">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-green-900">
+                      <Heart className="w-5 h-5 text-green-600 fill-green-600" />
+                      New Matches
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      {matchedUsers.map((user) => (
+                        <button
+                          key={user.id}
+                          onClick={() => handleStartConversation(user.id)}
+                          className="w-full text-left p-3 rounded-lg hover:bg-green-100 transition border border-transparent hover:border-green-300 bg-white"
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <p className="font-semibold text-gray-900">{user.name}</p>
+                              <p className="text-xs text-gray-600">{user.location}</p>
+                              <p className="text-xs text-green-600 mt-1 font-medium">Start chatting →</p>
+                            </div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Active Conversations */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Heart className="w-5 h-5 text-red-500 fill-red-500" />
-                    Matches
+                    Conversations
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
