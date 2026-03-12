@@ -1,4 +1,10 @@
 // Mock database with localStorage
+// DATABASE TABLES STRUCTURE:
+// - users_table: stores user accounts, profiles, tokens, premium status
+// - messages_table: stores all messages between users
+// - conversations_table: stores conversation threads
+// - matches_table: stores likes/dislikes between users
+
 export interface User {
   id: string;
   email: string;
@@ -342,5 +348,182 @@ export class Database {
       return user;
     }
     return null;
+  }
+
+  // --- REGISTRATION & LOGIN METHODS ---
+  
+  static registerUser(email: string, password: string, name: string, age: number, gender: 'male' | 'female', relationshipGoal: 'marriage' | 'serious' | 'dating', location: string, bio?: string): User | null {
+    // Check if email already exists
+    if (this.findUserByEmail(email)) {
+      return null;
+    }
+
+    const newUser: User = {
+      id: `user-${Date.now()}`,
+      email: email.toLowerCase(),
+      password: password, // Note: In production, use bcrypt
+      name,
+      age,
+      gender,
+      relationshipGoal,
+      bio: bio || 'Hello! I am new to Ethiomatch.',
+      photos: [],
+      videos: [],
+      interests: [],
+      location,
+      tokens: 10, // Give 10 free tokens on registration
+      isPremium: false,
+      createdAt: Date.now(),
+    };
+
+    const users = this.getUsers();
+    users.push(newUser);
+    this.saveUsers(users);
+    this.setCurrentUser(newUser);
+
+    return newUser;
+  }
+
+  static loginUser(email: string, password: string): User | null {
+    const user = this.validatePassword(email, password);
+    if (user) {
+      this.setCurrentUser(user);
+      return user;
+    }
+    return null;
+  }
+
+  static logoutUser(): void {
+    this.setCurrentUser(null);
+  }
+
+  // --- MESSAGE METHODS ---
+
+  static createMessage(conversationId: string, senderId: string, receiverId: string, content: string, mediaUrl?: string, mediaType?: 'image' | 'video'): Message {
+    const message: Message = {
+      id: `msg-${Date.now()}-${Math.random()}`,
+      conversationId,
+      senderId,
+      receiverId,
+      content,
+      mediaUrl,
+      mediaType,
+      createdAt: Date.now(),
+      read: false,
+    };
+
+    const messages = this.getMessages();
+    messages.push(message);
+    this.saveMessages(messages);
+
+    return message;
+  }
+
+  static getConversationMessages(conversationId: string): Message[] {
+    const messages = this.getMessages();
+    return messages.filter(m => m.conversationId === conversationId).sort((a, b) => a.createdAt - b.createdAt);
+  }
+
+  static markMessagesAsRead(conversationId: string, userId: string): void {
+    const messages = this.getMessages();
+    const updated = messages.map(m =>
+      m.conversationId === conversationId && m.receiverId === userId
+        ? { ...m, read: true }
+        : m
+    );
+    this.saveMessages(updated);
+  }
+
+  static getUnreadCount(userId: string, conversationId?: string): number {
+    const messages = this.getMessages();
+    if (conversationId) {
+      return messages.filter(m => 
+        m.conversationId === conversationId && 
+        m.receiverId === userId && 
+        !m.read
+      ).length;
+    }
+    return messages.filter(m => m.receiverId === userId && !m.read).length;
+  }
+
+  // --- CONVERSATION METHODS ---
+
+  static findOrCreateConversation(userId1: string, userId2: string): Conversation {
+    const conversations = this.getConversations();
+    const participants: [string, string] = [userId1, userId2].sort() as [string, string];
+
+    let conversation = conversations.find(c =>
+      (c.participants[0] === participants[0] && c.participants[1] === participants[1]) ||
+      (c.participants[0] === participants[1] && c.participants[1] === participants[0])
+    );
+
+    if (!conversation) {
+      conversation = {
+        id: `conv-${Date.now()}`,
+        participants,
+        createdAt: Date.now(),
+      };
+      conversations.push(conversation);
+      this.saveConversations(conversations);
+    }
+
+    return conversation;
+  }
+
+  static getUserConversations(userId: string): Conversation[] {
+    const conversations = this.getConversations();
+    return conversations.filter(c =>
+      c.participants[0] === userId || c.participants[1] === userId
+    );
+  }
+
+  // --- MATCH METHODS ---
+
+  static createMatch(userId: string, matchedUserId: string, status: 'liked' | 'disliked'): Match {
+    const match: Match = {
+      id: `match-${userId}-${matchedUserId}`,
+      userId,
+      matchedUserId,
+      status,
+      createdAt: Date.now(),
+    };
+
+    const matches = this.getMatches();
+    matches.push(match);
+    this.saveMatches(matches);
+
+    // Check for mutual match
+    const reverseMatch = matches.find(m =>
+      m.userId === matchedUserId && m.matchedUserId === userId && m.status === 'liked'
+    );
+
+    if (status === 'liked' && reverseMatch) {
+      // Create conversation for mutual match
+      this.findOrCreateConversation(userId, matchedUserId);
+    }
+
+    return match;
+  }
+
+  static getUserMatches(userId: string): Match[] {
+    const matches = this.getMatches();
+    return matches.filter(m => m.userId === userId);
+  }
+
+  static getMatchStatus(userId: string, matchedUserId: string): 'liked' | 'disliked' | 'matched' | null {
+    const matches = this.getMatches();
+    const match = matches.find(m => m.userId === userId && m.matchedUserId === matchedUserId);
+    return match ? match.status : null;
+  }
+
+  static getAllMatches(userId: string): User[] {
+    const matches = this.getMatches();
+    const users = this.getUsers();
+    
+    const matchedIds = matches
+      .filter(m => m.userId === userId && m.status === 'matched')
+      .map(m => m.matchedUserId);
+
+    return users.filter(u => matchedIds.includes(u.id));
   }
 }
