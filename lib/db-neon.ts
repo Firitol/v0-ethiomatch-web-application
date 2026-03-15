@@ -53,7 +53,7 @@ export async function registerUser(
     }
     return null;
   } catch (error) {
-    console.error('Error registering user:', error);
+    // Handle registration error silently, return null
     return null;
   }
 }
@@ -92,7 +92,7 @@ export async function loginUser(email: string, password: string): Promise<User |
     }
     return null;
   } catch (error) {
-    console.error('Error logging in user:', error);
+    // Handle login error silently, return null
     return null;
   }
 }
@@ -131,7 +131,7 @@ export async function getUserById(userId: string): Promise<User | null> {
     }
     return null;
   } catch (error) {
-    console.error('Error getting user:', error);
+    // Handle error silently
     return null;
   }
 }
@@ -165,7 +165,7 @@ export async function getAllUsers(): Promise<User[]> {
       createdAt: row.created_at,
     }));
   } catch (error) {
-    console.error('Error getting all users:', error);
+    // Handle error silently
     return [];
   }
 }
@@ -244,7 +244,7 @@ export async function updateUser(userId: string, updates: Partial<User>): Promis
     }
     return null;
   } catch (error) {
-    console.error('Error updating user:', error);
+    // Handle error silently
     return null;
   }
 }
@@ -260,7 +260,7 @@ export async function useToken(userId: string): Promise<boolean> {
 
     return result.rows.length > 0 && result.rows[0].tokens >= 0;
   } catch (error) {
-    console.error('Error using token:', error);
+    // Handle error silently
     return false;
   }
 }
@@ -289,7 +289,7 @@ export async function addTokens(userId: string, amount: number): Promise<User | 
     }
     return null;
   } catch (error) {
-    console.error('Error adding tokens:', error);
+    // Handle error silently
     return null;
   }
 }
