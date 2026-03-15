@@ -109,7 +109,6 @@ export default function AuthPage() {
 
       // Check if email exists
       const existingUser = Database.findUserByEmail(regEmail);
-      console.log('[v0] Checking existing user:', existingUser);
       if (existingUser) {
         setRegError('Email already registered');
         setIsLoading(false);
@@ -135,9 +134,7 @@ export default function AuthPage() {
         createdAt: Date.now(),
       };
 
-      console.log('[v0] Creating new user:', newUser);
       createUser(newUser);
-      console.log('[v0] User created, redirecting to /app');
       router.push('/app');
     } catch {
       setRegError('An error occurred. Please try again.');

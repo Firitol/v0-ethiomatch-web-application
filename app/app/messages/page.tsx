@@ -7,7 +7,7 @@ import { Database, User, Message, Conversation } from '@/lib/db';
 import { ChatInterface } from '@/components/chat-interface';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Heart, ArrowLeft } from 'lucide-react';
+import { Heart, ArrowLeft, MessageCircle } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 export default function MessagesPage() {
