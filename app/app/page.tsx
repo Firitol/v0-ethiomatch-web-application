@@ -49,7 +49,13 @@ export default function AppHome() {
   }
 
   if (!currentUser) {
-    return null;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-red-50 to-rose-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600">Redirecting to login...</p>
+        </div>
+      </div>
+    );
   }
 
   const handleLogout = () => {
